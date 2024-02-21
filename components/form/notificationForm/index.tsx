@@ -1,6 +1,6 @@
 "use client";
 import { useNotificationStore } from "@/lib/store";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 const NotificationForm = () => {
   const [name, setName] = useState("");

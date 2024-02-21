@@ -1,4 +1,3 @@
-import { get } from 'http';
 import {create} from 'zustand';
 import { persist } from 'zustand/middleware'; 
 
@@ -68,61 +67,7 @@ const notificationsArray = [
       name: "New Strawberries Arrived",
       description: "These Strawberries are Delicious",
       read: true,
-    },
-    {
-      uid: 12,
-      name: "New Blueberries Arrived",
-      description: "These Blueberries are Delicious",
-      read: true,
-    },
-    {
-      uid: 13,
-      name: "New Raspberries Arrived",
-      description: "These Raspberries are Delicious",
-      read: true,
-    },
-    {
-      uid: 14,
-      name: "New Blackberries Arrived",
-      description: "These Blackberries are Delicious",
-      read: false,
-    },
-    {
-      uid: 15,
-      name: "New Cherries Arrived",
-      description: "These Cherries are Delicious",
-      read: false,
-    },
-    {
-      uid: 16,
-      name: "New Peaches Arrived",
-      description: "These Peaches are Delicious",
-      read: false,
-    },
-    {
-      uid: 17,
-      name: "New Plums Arrived",
-      description: "These Plums are Delicious",
-      read: true,
-    },
-    {
-      uid: 18,
-      name: "New Apricots Arrived",
-      description: "These Apricots are Delicious",
-      read: false,
-    },
-    {
-      uid: 19,
-      name: "New Nectarines Arrived",
-      description: "These Nectarines are Delicious",
-      read: false,
-    },
-    {
-      uid: 20,
-      name: "New Pomegranates Arrived",
-      description: "These Pomegranates are Delicious",
-      read: true,
-    },
+    },  
   ];
 
 export type Notification = {
@@ -138,10 +83,10 @@ export type  NotificationActions ={
     deleteNotification: (uid: number) => void;
     updateStatus: (uid: number) => void;
  }
-
+//
 export const useNotificationStore = create<NotificationActions>()(
     persist(
-        (set,get) => ({
+        (set) => ({
             notifications: [],
             addNotification: (notification) => set((state) => ({ notifications: [...state.notifications, notification] })),
             deleteNotification: (uid) => set((state) => ({ notifications: state.notifications.filter((notification) => notification.uid !== uid) })),
