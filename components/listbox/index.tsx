@@ -19,10 +19,15 @@ export default function Example({
 }) {
   const [status, setStatus] = useState(initialStatus);
   const updateStatus = useNotificationStore((state) => state.updateStatus);
+  const [marking, setMarking] = useState(false);
 
-  const handleChange = (value: boolean) => {
-    setStatus(value);
-    updateStatus(uid);
+  const handleChange = async (value: boolean) => {
+    await setMarking(true);
+    setTimeout(() => {
+      setStatus(value);
+      updateStatus(uid);
+      setMarking(false);
+    }, 1000);
   };
 
   return (
@@ -35,11 +40,13 @@ export default function Example({
           <div className="relative">
             <div className="inline-flex divide-x divide-indigo-700 rounded-md shadow-sm">
               <div className="inline-flex items-center gap-x-1.5 rounded-l-md bg-indigo-600 px-3 py-2 text-white shadow-sm">
-                {status ? (
+                {marking ? (
+                  ""
+                ) : status ? (
                   <CheckIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
                 ) : null}
                 <p className="text-sm font-semibold">
-                  {status ? "Read" : "Unread"}
+                  {marking ? "Marking.." : status ? "Read" : "Unread"}
                 </p>
               </div>
               <Listbox.Button className="inline-flex items-center rounded-l-none rounded-r-md bg-indigo-600 p-2 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 focus:ring-offset-gray-50">

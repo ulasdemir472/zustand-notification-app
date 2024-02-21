@@ -2,12 +2,17 @@
 import { useNotificationStore } from "@/lib/store";
 import React, { useEffect, useState } from "react";
 
-let counter = 0;
-
 const NotificationForm = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+
+  const notifications = useNotificationStore((state) => state.notifications);
+
+  const [counter, setCounter] = useState(
+    notifications[notifications.length - 1]?.uid + 1 || 0
+  );
   const [loading, setLoading] = useState(false);
+  const [showSkeleton, setShowSkeleton] = useState(false); // State to control skeleton loading
 
   const addNotification = useNotificationStore(
     (state) => state.addNotification
@@ -16,15 +21,20 @@ const NotificationForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setShowSkeleton(true); // Show skeleton loading when submitting form
+
     const isSuccess = await simulateBackendCallWithRandomResult();
     if (isSuccess) {
       addNotification({ uid: counter, name, description, read: false });
       setName("");
       setDescription("");
-      counter++;
+      setCounter((prev) => prev + 1);
       setLoading(false);
+      setShowSkeleton(false); // Hide skeleton loading on success
     } else {
       alert("Failed to add notification");
+      setLoading(false);
+      setShowSkeleton(false); // Hide skeleton loading on error
     }
   };
 
@@ -67,7 +77,10 @@ const NotificationForm = () => {
               <div className="w-5 h-5 border-t-2 border-b-2 border-gray-800 rounded-full animate-spin"></div>
             </div>
           )}
-          Add Notification
+          {showSkeleton && (
+            <div className="absolute inset-0 bg-gray-200 opacity-50 rounded-lg"></div>
+          )}
+          {loading ? "Adding..." : "Add Notification"}
         </button>
       </form>
     </>
