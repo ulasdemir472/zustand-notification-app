@@ -1,7 +1,8 @@
 import {create} from 'zustand';
 import { persist } from 'zustand/middleware'; 
+import { NotificationService } from '@/service';
 
-const notificationsArray = [
+export const notificationsArray:Notification[] = [
     {
       uid: 1,
       name: "New Lemons Arrived",
@@ -83,12 +84,30 @@ export type  NotificationActions ={
     deleteNotification: (uid: number) => void;
     updateStatus: (uid: number) => void;
  }
-//
+//set((state) => ({ notifications: [...state.notifications, notification] }))
 export const useNotificationStore = create<NotificationActions>()(
     persist(
         (set) => ({
-            notifications: [],
-            addNotification: (notification) => set((state) => ({ notifications: [...state.notifications, notification] })),
+            isLoading:false,
+            notifications: NotificationService.getNotifications(),
+            getNotification: async (uid: number) => {
+              try {
+                const notification = await NotificationService.getNotificationByID(uid);
+                return notification;
+              } catch (error) {
+                console.error('Error while fetching notification:', error);
+                return undefined;
+              }
+            },
+            addNotification: async (notification:Notification) => {
+              try {
+                const notifications = await NotificationService.addNotification(notification);
+                set({ notifications });
+              } catch (error) {
+                console.error('Error while adding notification:', error);
+              }
+            
+            },
             deleteNotification: (uid) => set((state) => ({ notifications: state.notifications.filter((notification) => notification.uid !== uid) })),
             updateStatus: (uid) => set((state) => ({
                 notifications: state.notifications.map((notification) =>
