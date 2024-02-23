@@ -1,7 +1,7 @@
 import { notificationsArray,Notification } from './../lib/store';
 
 export class NotificationService{
-    public static getNotifications() : Notification[]{
+    public static async getNotifications() : Promise<Notification[]>{
         return notificationsArray;
     }
     public static async getNotificationByID(uid:number):Promise<Notification>{
@@ -13,9 +13,9 @@ export class NotificationService{
         }
     }
     public static async addNotification(notification:Notification):Promise<Notification[]>{
-        const notifications =  this.getNotifications()
-        notifications.push(notification)
-        return notifications;
+        const notifications = await this.getNotifications()
+        const newNotifications = [...notifications, notification];
+        return newNotifications;
     }
     
   public static async simulateBackendCallWithRandomResult(

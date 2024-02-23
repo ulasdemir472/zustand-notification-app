@@ -79,17 +79,22 @@ export type Notification = {
 }
 
 export type  NotificationActions ={ 
+    isLoading: boolean;
     notifications: Notification[];
+    getNotification: (uid: number) => Promise<Notification | undefined>;
+    getNotifications: () => Promise<{ notifications: Notification[] }>
     addNotification: (notification: Notification) => void;
     deleteNotification: (uid: number) => void;
     updateStatus: (uid: number) => void;
+    updateLoading: () => void;
  }
-//set((state) => ({ notifications: [...state.notifications, notification] }))
+
+
 export const useNotificationStore = create<NotificationActions>()(
     persist(
         (set) => ({
             isLoading:false,
-            notifications: NotificationService.getNotifications(),
+            notifications: notificationsArray,
             getNotification: async (uid: number) => {
               try {
                 const notification = await NotificationService.getNotificationByID(uid);
@@ -99,15 +104,16 @@ export const useNotificationStore = create<NotificationActions>()(
                 return undefined;
               }
             },
-            addNotification: async (notification:Notification) => {
+            getNotifications: async () =>{
               try {
-                const notifications = await NotificationService.addNotification(notification);
-                set({ notifications });
-              } catch (error) {
-                console.error('Error while adding notification:', error);
-              }
-            
+                const notifications = await NotificationService.getNotifications();
+                set({ notifications});
+                return { notifications};
+            } catch (error) {
+                console.error('Error while fetching notifications:', error);
+                return { notifications: []}}
             },
+            addNotification: (notification:Notification) => set((state) => ({ notifications: [...state.notifications, notification] })),
             deleteNotification: (uid) => set((state) => ({ notifications: state.notifications.filter((notification) => notification.uid !== uid) })),
             updateStatus: (uid) => set((state) => ({
                 notifications: state.notifications.map((notification) =>
@@ -116,6 +122,7 @@ export const useNotificationStore = create<NotificationActions>()(
                     : notification
                 )
               })),
+            updateLoading: () => set((state)=>({isLoading: !state.isLoading})),
             }), 
         {
             name: "notification-storage",

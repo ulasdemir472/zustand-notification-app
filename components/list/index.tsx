@@ -1,11 +1,8 @@
 "use client";
-import Listbox from "@/components/listbox";
 import { useNotificationStore, Notification } from "@/lib/store";
 import { useEffect, useState } from "react";
-
-function classNames(...classes: any[]) {
-  return classes.filter(Boolean).join(" ");
-}
+import NotificationComponent from "../notification";
+import NotificationForm from "../form/notificationForm";
 
 export default function List() {
   const [loading, setLoading] = useState(true);
@@ -13,9 +10,8 @@ export default function List() {
   const notifications: Notification[] = useNotificationStore(
     (state) => state.notifications
   );
-
-  const removeNotification = useNotificationStore(
-    (state) => state.deleteNotification
+  const loadingNotification: boolean = useNotificationStore(
+    (state) => state.isLoading
   );
 
   useEffect(() => {
@@ -25,46 +21,45 @@ export default function List() {
     }, 1000);
   }, []);
 
+  useEffect(() => {
+    console.log("LIST", loadingNotification);
+  }, [loadingNotification]);
+
   return (
-    <ul role="list" className="divide-y divide-gray-100">
-      {loading ? (
-        <div className="inset-0 flex items-center justify-center">
-          <div className="w-5 h-5 border-t-2 border-b-2 border-gray-800 rounded-full animate-spin"></div>
-        </div>
-      ) : (
-        notifications?.map((notification: Notification) => (
-          <li
-            key={notification.uid}
-            className={classNames(
-              notification.read ? "bg-slate-400" : "",
-              "flex items-center justify-between gap-x-6 py-5 px-2 rounded-md transition duration-200 ease-in-out mt-2"
-            )}
-          >
-            <div className="min-w-0">
-              <div className="flex items-start gap-x-3">
-                <p className="text-sm font-semibold leading-6 text-gray-900">
-                  {notification.name}
-                </p>
-              </div>
-              <p className="text-sm text-gray-500">
-                {notification.description}
-              </p>
-            </div>
-            <div className="flex gap-1">
-              <Listbox
-                initialStatus={notification.read}
-                uid={notification.uid}
-              />
-              <button
-                onClick={() => removeNotification(notification.uid)}
-                className=" flex items-center justify-center gap-x-1 py-2 px-4 rounded-md bg-red-500 text-sm text-white whitespace-nowrap"
+    <>
+      <NotificationForm />
+      <ul role="list" className="divide-y divide-gray-100">
+        {loading ? (
+          <div className="inset-0 flex items-center justify-center">
+            <div className="w-5 h-5 border-t-2 border-b-2 border-gray-800 rounded-full animate-spin"></div>
+          </div>
+        ) : (
+          notifications?.map((notification: Notification) =>
+            loadingNotification ? (
+              <li
+                key={notification.uid}
+                className="flex items-center justify-between gap-x-6 py-5 px-2 rounded-md transition duration-200 ease-in-out mt-2 animate-pulse"
               >
-                Remove
-              </button>
-            </div>
-          </li>
-        ))
-      )}
-    </ul>
+                <div className="min-w-0">
+                  <div className="flex items-start gap-x-3">
+                    <div className="w-24 h-4 bg-gray-200 rounded"></div>
+                  </div>
+                  <div className="w-48 h-3 mt-1 bg-gray-200 rounded"></div>
+                </div>
+                <div className="flex gap-1">
+                  <div className="w-10 h-10 bg-gray-200 rounded"></div>
+                  <div className="w-20 h-8 bg-gray-200 rounded"></div>
+                </div>
+              </li>
+            ) : (
+              <NotificationComponent
+                notification={notification}
+                key={notification.uid}
+              />
+            )
+          )
+        )}
+      </ul>
+    </>
   );
 }
